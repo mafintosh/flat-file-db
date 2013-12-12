@@ -1,5 +1,8 @@
 var fs = require('fs');
-var events = require('events').EventEmitter();
+var mkdirp = require('mkdirp');
+var path = require('path');
+var events = require('events');
+var util = require('util');
 
 var BLOCK_SIZE = 256;
 var TAB = 9;
@@ -103,6 +106,8 @@ var populateFreelist = function(self, entries) {
 };
 
 var Database = function(path) {
+	events.EventEmitter.call(this);
+
 	this.path = path;
 	this.fd = 0;
 
@@ -111,6 +116,8 @@ var Database = function(path) {
 	this._entries = {};
 	this._freelists = [[], [], [], [], [], []];
 };
+
+util.inherits(Database, events.EventEmitter);
 
 var writefd = function(fd, buf, entry, oldPointer, oldFreelist, cb) {
 	fs.write(fd, buf, 0, buf.length, entry.pointer, function(err) {
@@ -177,20 +184,23 @@ Database.prototype.close = function() {
 Database.prototype.open = function() {
 	var self = this;
 
-	fs.exists(self.path, function(exists) {
-		fs.open(self.path, exists ? 'r+' : 'w+', function(err, fd) {
-			if (err) return self.emit('error', err);
-			fs.readFile(self.path, function(err, buf) {
+	mkdirp(path.dirname(this.path), function() {
+		fs.exists(self.path, function(exists) {
+			fs.open(self.path, exists ? 'r+' : 'w+', function(err, fd) {
 				if (err) return self.emit('error', err);
-				self.fd = fd;
-				parseDatabase(self, buf);
-				self.emit('open');
+				fs.readFile(self.path, function(err, buf) {
+					if (err) return self.emit('error', err);
+					self.fd = fd;
+					parseDatabase(self, buf);
+					self.emit('open');
+				});
 			});
 		});
 	});
 };
 
 Database.prototype.openSync = function() {
+	mkdirp.sync(path.dirname(this.path));
 	this.fd = fs.openSync(this.path, fs.existsSync(this.path) ? 'r+' : 'w+');
 	parseDatabase(this, fs.readFileSync(this.path));
 };
