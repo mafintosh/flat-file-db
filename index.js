@@ -62,13 +62,16 @@ var parseDatabase = function(self, data) {
 
 	entries.forEach(function(entry) {
 		var key = entry.row[1];
-		if (entry.row[2] === null || entry.row[2] === undefined) return;
 		if (!latest[key] || latest[key].row[0] < entry.row[0]) latest[key] = entry;
 		tick = max(tick, entry.row[0]);
 	});
 
 	entries = entries.filter(function(entry) {
 		return latest[entry.row[1]] === entry;
+	});
+
+	entries.forEach(function(entry) {
+		if (entry.row[2] === null || entry.row[2] === undefined) delete latest[entry.row[1]];
 	});
 
 	self._tick = tick;
@@ -115,12 +118,15 @@ var Database = function(path) {
 	this._tick = 0;
 	this._entries = {};
 	this._freelists = [[], [], [], [], [], []];
+	this._pending = 0;
 };
 
 util.inherits(Database, events.EventEmitter);
 
-var writefd = function(fd, buf, entry, oldPointer, oldFreelist, cb) {
-	fs.write(fd, buf, 0, buf.length, entry.pointer, function(err) {
+var writefd = function(self, buf, entry, oldPointer, oldFreelist, cb) {
+	self._pending++;
+	fs.write(self.fd, buf, 0, buf.length, entry.pointer, function(err) {
+		if (!--self._pending) self.emit('drain');
 		if (err) return cb(err);
 		if (oldFreelist) oldFreelist.push(oldPointer);
 		cb();
@@ -138,6 +144,7 @@ Database.prototype.put = function(key, val, cb) {
 		oldPointer = entry.pointer;
 		oldFreelist = this._freelists[entry.block];
 		entry.row[0] = ++this._tick;
+		entry.row[2] = val;
 	} else {
 		entry = this._entries[key] = {pointer:0, block:0, row:[++this._tick, key, val]};
 	}
@@ -148,7 +155,7 @@ Database.prototype.put = function(key, val, cb) {
 	if (buf.length > (BLOCK_SIZE << entry.block)) entry.block = nextBlockSize(buf.length, BLOCK_SIZE);
 
 	entry.pointer = alloc(this, entry.block);
-	writefd(this.fd, buf, entry, oldPointer, oldFreelist, cb || noop);
+	writefd(this, buf, entry, oldPointer, oldFreelist, cb || noop);
 };
 
 Database.prototype.del = function(key, cb) {
