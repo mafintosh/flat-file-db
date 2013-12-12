@@ -31,6 +31,15 @@ var db = flatfile.sync('/tmp/my.db');
 console.log(db.get('hello')); // prints {world:1}
 ```
 
+If you issue multiple writes the last one will always win
+
+``` js
+for (var i = 0; i < 10; i++) {
+	db.put('test', {count:i}, ...);
+}
+db.get('test'); // returns {count:9} which also the persisted value of 'test'
+```
+
 ## API
 
 * `db.put(key, val, [cb])` Insert or update new key
@@ -50,6 +59,8 @@ console.log(db.get('hello')); // prints {world:1}
 * `db.on('open')` Fired when the db is open and ready for use.
 
 * `db.on('close')` Fired when the db is fully closed
+
+* `db.on('drain')` All puts and deletes are flushed to disk
 
 ## License
 
