@@ -5,6 +5,8 @@ All data is persisted to an open file using a append-only algorithm ensuring com
 
 	npm install flat-file-db
 
+[![build status](https://secure.travis-ci.org/mafintosh/flat-file-db.png)](http://travis-ci.org/mafintosh/flat-file-db)
+
 ## Usage
 
 Pass a database file to use to the flat-file-db constructor and wait for the database to open.
