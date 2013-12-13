@@ -77,4 +77,21 @@ test('last write wins', function(t) {
 		var db2 = ff.sync(TMP);
 		t.same(db2.get('count'), {count:19});
 	});
-})
+});
+
+test('big write', function(t) {
+	t.plan(3);
+
+	var db = ff.sync(reset(TMP));
+	var doc = {data:'data'};
+
+	db.put('test', doc, function(err) {
+		t.ok(!err, 'write should not fail');
+		doc.data = new Buffer(512).toString('hex');
+		db.put('test', doc, function(err) {
+			t.ok(!err, 'write should not fail');
+			var db2 = ff.sync(TMP);
+			t.same(db.get('test'), doc);
+		})
+	});
+});
