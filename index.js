@@ -134,7 +134,7 @@ var writefd = function(self, buf, entry, oldPointer, oldFreelist, cb) {
 };
 
 Database.prototype.put = function(key, val, cb) {
-	if (!this.fd) throw new Error('database is not open');
+	if (!cb) cb = noop;
 
 	var entry = this._entries[key];
 	var oldFreelist;
@@ -143,13 +143,15 @@ Database.prototype.put = function(key, val, cb) {
 	if (entry) {
 		oldPointer = entry.pointer;
 		oldFreelist = this._freelists[entry.block];
-		entry.row[0] = ++this._tick;
 		entry.row[2] = val;
 	} else {
-		entry = this._entries[key] = {pointer:0, block:0, row:[++this._tick, key, val]};
+		entry = this._entries[key] = {pointer:0, block:0, row:[0, key, val]};
 	}
 
+	entry.row[0] = ++this._tick;
 	if (val === undefined) delete this._entries[key];
+
+	if (!this.fd) return cb(new Error('database is not open'));
 
 	var buf = new Buffer('\t'+JSON.stringify(entry.row)+'\n');
 	if (buf.length > (BLOCK_SIZE << entry.block)) entry.block = nextBlockSize(buf.length, BLOCK_SIZE);
@@ -163,18 +165,15 @@ Database.prototype.del = function(key, cb) {
 };
 
 Database.prototype.get = function(key) {
-	if (!this.fd) throw new Error('database is not open');
 	var entry = this._entries[key];
 	return entry && entry.row[2];
 };
 
 Database.prototype.has = function(key) {
-	if (!this.fd) throw new Error('database is not open');
 	return !!this._entries[key];
 };
 
 Database.prototype.keys = function() {
-	if (!this.fd) throw new Error('database is not open');
 	return Object.keys(this._entries);
 };
 
