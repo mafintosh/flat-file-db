@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "repository": "git://github.com:mafintosh/flat-file-db.git",
   "author": "Mathias Buus <mathiasbuus@gmail.com>",
-  "description": "Fast in-process flat file database that with JSON support",
+  "description": "Fast in-process flat file database that caches all data in memory",
   "dependencies": {
     "mkdirp": "~0.3.5"
   },
@@ -21,6 +21,9 @@
 	"in",
 	"process",
 	"json",
-	"files"
+	"files",
+	"compact",
+	"consistent",
+	"fast"
   ]
 }
