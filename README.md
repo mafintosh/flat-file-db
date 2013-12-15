@@ -39,7 +39,7 @@ If you issue multiple writes the last one will always win
 for (var i = 0; i < 10; i++) {
 	db.put('test', {count:i}, ...);
 }
-console.log(db.get('test')); // prints {count:9} which also the persisted value of 'test'
+console.log(db.get('test')); // {count:9} which also the persisted value of 'test'
 ```
 
 ## API
