@@ -44,6 +44,10 @@ console.log(db.get('test')); // {count:9} which also the persisted value of 'tes
 
 ## API
 
+* `db = flatfile(path, opts)` Create a new db instance. Per default fsync is called on all puts. To disable this set `opts.fsync = false`
+
+* `db = flatfile.sync(path, opts)` Same as above except you do not need to wait for the open event
+
 * `db.put(key, val, [cb])` Insert or update new key
 
 * `db.del(key, [cb])` Delete a key
