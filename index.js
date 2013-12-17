@@ -108,8 +108,9 @@ var populateFreelist = function(self, entries) {
 	});
 };
 
-var Database = function(path) {
+var Database = function(path, opts) {
 	events.EventEmitter.call(this);
+	if (!opts) opts = {};
 
 	this.path = path;
 	this.fd = 0;
@@ -119,17 +120,23 @@ var Database = function(path) {
 	this._entries = {};
 	this._freelists = [[], [], [], [], [], []];
 	this._pending = 0;
+	this._fsync = opts.fsync !== false;
 };
 
 util.inherits(Database, events.EventEmitter);
 
 var writefd = function(self, buf, entry, oldPointer, oldFreelist, cb) {
-	self._pending++;
-	fs.write(self.fd, buf, 0, buf.length, entry.pointer, function(err) {
+	var done = function(err) {
 		if (!--self._pending) self.emit('drain');
 		if (err) return cb(err);
 		if (oldFreelist) oldFreelist.push(oldPointer);
 		cb();
+	};
+
+	self._pending++;
+	fs.write(self.fd, buf, 0, buf.length, entry.pointer, function(err) {
+		if (err || !self._fsync) return done(err);
+		fs.fsync(self.fd, done);
 	});
 };
 
@@ -211,14 +218,14 @@ Database.prototype.openSync = function() {
 	parseDatabase(this, fs.readFileSync(this.path));
 };
 
-var open = function(path) {
-	var db = new Database(path);
+var open = function(path, opts) {
+	var db = new Database(path, opts);
 	db.open();
 	return db;
 };
 
-open.sync = function(path) {
-	var db = new Database(path);
+open.sync = function(path, opts) {
+	var db = new Database(path, opts);
 	db.openSync();
 	return db;
 };
