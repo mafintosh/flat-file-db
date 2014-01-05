@@ -218,6 +218,21 @@ Database.prototype.openSync = function() {
 	parseDatabase(this, fs.readFileSync(this.path));
 };
 
+Database.prototype.toBuffer = function() {
+	var buf = new Buffer(this._head);
+	var entries = this._entries;
+
+	buf.fill(0);
+
+	Object.keys(entries).forEach(function(key) {
+		var entry = entries[key];
+		var row = '\t'+JSON.stringify(entry.row)+'\n';
+		buf.write(row, entry.pointer);
+	});
+
+	return buf;
+};
+
 var open = function(path, opts) {
 	var db = new Database(path, opts);
 	db.open();
