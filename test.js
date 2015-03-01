@@ -13,6 +13,39 @@ var reset = function(file) {
 
 var TMP = path.join(os.tmpDir(), 'test1.db');
 
+test('freelist', function(t) {
+
+        // make sure it's the same as in index.js
+        var BLOCK_SIZE = 256;
+
+        // make sure this function is the same as in index.js
+        var nextBlockSize = function(length) {
+                var i = 0;
+                while ((BLOCK_SIZE << i) < length) i++;
+                return i;
+        };
+
+        var len = 1000;
+
+        var db = ff.sync(reset(TMP));
+
+        while (nextBlockSize(len) < db._freelists.length) {
+                len *= 2;
+        }
+
+        var data = '';
+        for (var i=0; i<len; i++) {
+                data += 'a';
+        }
+
+        data = {d:data};
+
+        db.put('a', data);
+
+        t.end();
+
+});
+
 test('open + write + get', function(t) {
 	t.plan(2);
 
@@ -92,6 +125,6 @@ test('big write', function(t) {
 			t.ok(!err, 'write should not fail');
 			var db2 = ff.sync(TMP);
 			t.same(db.get('test'), doc);
-		})
+		});
 	});
 });
