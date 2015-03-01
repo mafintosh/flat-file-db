@@ -1,6 +1,6 @@
 {
   "name": "flat-file-db",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "repository": "git://github.com:mafintosh/flat-file-db.git",
   "author": "Mathias Buus <mathiasbuus@gmail.com>",
   "description": "Fast in-process flat file database that caches all data in memory",
@@ -11,19 +11,19 @@
     "tap": "~0.4.6"
   },
   "scripts": {
-  	"test": "tap test.js"
+    "test": "tap test.js"
   },
   "keywords": [
-  	"db",
-	"flat",
-	"file",
-	"memory",
-	"in",
-	"process",
-	"json",
-	"files",
-	"compact",
-	"consistent",
-	"fast"
+    "db",
+    "flat",
+    "file",
+    "memory",
+    "in",
+    "process",
+    "json",
+    "files",
+    "compact",
+    "consistent",
+    "fast"
   ]
 }
