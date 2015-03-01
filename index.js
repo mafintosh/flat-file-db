@@ -29,7 +29,7 @@ var max = function(a, b) {
 };
 
 var alloc = function(self, block) {
-	while (self._freelists.length < block) self._freelists.push([]);
+	while (self._freelists.length <= block) self._freelists.push([]);
 
 	var freelist = self._freelists[block];
 
