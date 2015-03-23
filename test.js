@@ -41,8 +41,19 @@ test('freelist', function(t) {
         data = {d:data};
 
         db.put('a', data);
+        db.put('b', data);
 
-        t.end();
+        db.put('a', data);
+        
+        db.del('b');
+
+        // there was also a bug on re-loading freelists
+        // for large block sizes, so let's read the DB back
+        db.on('drain', function(){
+            ff.sync(TMP);
+            t.end();
+        });
+        
 
 });
 
