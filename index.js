@@ -99,7 +99,7 @@ var populateFreelist = function(self, entries) {
 		})
 		.reduce(max, 0);
 
-        while (freelists.length <= maxBlock) freelists.push([]);
+	while (freelists.length <= maxBlock) freelists.push([]);
 
 	entries.forEach(function(entry) {
 		var from = self._head;
