@@ -15,34 +15,45 @@ var TMP = path.join(os.tmpDir(), 'test1.db');
 
 test('freelist', function(t) {
 
-        // make sure it's the same as in index.js
-        var BLOCK_SIZE = 256;
+	// make sure it's the same as in index.js
+	var BLOCK_SIZE = 256;
 
-        // make sure this function is the same as in index.js
-        var nextBlockSize = function(length) {
-                var i = 0;
-                while ((BLOCK_SIZE << i) < length) i++;
-                return i;
-        };
+	// make sure this function is the same as in index.js
+	var nextBlockSize = function(length) {
+		var i = 0;
+		while ((BLOCK_SIZE << i) < length) i++;
+		return i;
+	};
 
-        var len = 1000;
+	var len = 1000;
 
-        var db = ff.sync(reset(TMP));
+	var db = ff.sync(reset(TMP));
 
-        while (nextBlockSize(len) < db._freelists.length) {
-                len *= 2;
-        }
+	while (nextBlockSize(len) < db._freelists.length) {
+		len *= 2;
+	}
 
-        var data = '';
-        for (var i=0; i<len; i++) {
-                data += 'a';
-        }
+	var data = '';
+	for (var i=0; i<len; i++) {
+		data += 'a';
+	}
 
-        data = {d:data};
+	data = {d:data};
 
-        db.put('a', data);
+	db.put('a', data);
+	db.put('b', data);
 
-        t.end();
+	db.put('a', data);
+
+	db.del('b');
+
+	// there was also a bug on re-loading freelists
+	// for large block sizes, so let's read the DB back
+	db.on('drain', function(){
+		ff.sync(TMP);
+		t.end();
+	});
+
 
 });
 
