@@ -58,6 +58,8 @@ console.log(db.get('test')); // {count:9} which also the persisted value of 'tes
 
 * `db.keys() -> list` Get all keys as an array
 
+* `db.clear([cb])` Clears the database of all values
+
 * `db.close()` Close the database
 
 ## Events

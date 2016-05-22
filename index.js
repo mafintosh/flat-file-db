@@ -195,6 +195,15 @@ Database.prototype.close = function() {
 	});
 };
 
+Database.prototype.clear = function (cb) {
+  this._head = 0;
+  this._tick = 0;
+  this._entries = {};
+  this._freelists = [[], [], [], [], [], []];
+  this._pending = 0;
+  fs.ftruncate(this.fd, 0, cb || noop);
+}
+
 Database.prototype.open = function() {
 	var self = this;
 

@@ -139,3 +139,19 @@ test('big write', function(t) {
 		});
 	});
 });
+
+test('clear', function (t) {
+	var db = ff.sync(reset(TMP));
+	var doc = {data:'data'};
+
+	db.put('test', doc, function () {
+		t.same(db.get('test'), {data: 'data'});
+		db.clear(function () {
+			t.ok(!db.get('test'));
+			db.put('test', doc, function () {
+				t.same(db.get('test'), {data: 'data'});
+				t.end();
+			});
+		});
+	});
+});
