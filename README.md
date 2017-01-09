@@ -1,7 +1,7 @@
 # flat-file-db
 
 Fast in-process flat file database for Node.js that supports JSON and caches all data in memory.
-All data is persisted to an open file using a append-only algorithm ensuring compact file sizes and strong consistency.
+All data is persisted to an open file using an append-only algorithm ensuring compact file sizes and strong consistency.
 
 	npm install flat-file-db
 
