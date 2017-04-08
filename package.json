@@ -1,8 +1,14 @@
 {
   "name": "flat-file-db",
   "version": "1.0.0",
-  "repository": "git://github.com:mafintosh/flat-file-db.git",
-  "author": "Mathias Buus <mathiasbuus@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mafintosh/flat-file-db.git"
+  },
+  "author": {
+    "name": "Mathias Buus",
+    "email": "mathiasbuus@gmail.com"
+  },
   "description": "Fast in-process flat file database that caches all data in memory",
   "dependencies": {
     "mkdirp": "~0.3.5"
